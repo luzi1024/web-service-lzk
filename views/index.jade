@@ -117,13 +117,22 @@ html
 			|	{
 			|		if (xmlhttp.readyState==4 && xmlhttp.status==200)
 			|		{
-			|			config.data.datasets[0].data=[];
-			|			var jdat = JSON.parse(xmlhttp.responseText);
-			|			for (var k in jdat){
-			|				config.data.datasets[0].data.push(jdat[k]);
+			|			if(xmlhttp.responseText == "none"){
+			|				document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+			|				config.data.datasets[0].data=[0,0,0,0,0,0,0,0,0,0,0,0,0];
+			|				window.myLine.update();
+			|				alert("没有查询到数据!");
 			|			}
-			|			document.getElementById("myDiv").innerHTML=config.data.datasets[0].data;
-			|			window.myLine.update();
+			|			else{
+			|				config.data.datasets[0].data=[];
+			|				var jdat = JSON.parse(xmlhttp.responseText);
+			|				for (var k in jdat){
+			|					config.data.datasets[0].data.push(jdat[k]);
+			|				}
+			|				document.getElementById("myDiv").innerHTML=config.data.datasets[0].data;
+			|				window.myLine.update();
+			|			}
+
 			|		}
 			|	}
 			|	xmlhttp.open("POST","/web/?dat=temperature&deviceid=1002&tm="+document.getElementById("meeting").value,true);
