@@ -15,11 +15,19 @@ html
 	body
 		h4 #{message}
 		//p #{csrfToken}
-		|<label for="meeting">日期：</label>
-		|<input id="meeting" type="date" value="2017-05-13"/>
-		|<div style="width:75%; margin:0 auto;padding-top:25px;">
-		|<canvas id="canvas"></canvas>
-		|</div>
+		div(style="width:70%; margin:0 auto;")
+			label(for="meeting",style="background-color:rgb(255,99,132);") 日期：
+			input(id="meeting",type="date",value="2017-05-13")
+			|       
+			button(type="button",onclick="loadXMLDoc(this)") 查询
+			|														
+			label(for="secday",style="background-color:rgb(54,162,235);") 日期：
+			input(id="secday",type="date",value="2017-05-13")
+			button(type="button",onclick="loadXMLDoc(this)") 查询
+			
+		div(style="width:75%; margin:0 auto;padding-top:25px;")
+			canvas(id="canvas")
+			
 		button(onclick="toggleSmooth(this)") smooth
 		//button#randomizeData Randomize Data
 		//button#addDataset Add Dataset
@@ -37,9 +45,27 @@ html
 			|options: !{JSON.stringify(confdata.opt,null,4)},
 			|};
 			
+			|Date.prototype.Format = function (fmt) { //author: meizz 
+			|var o = {
+			|	"M+": this.getMonth() + 1, //月份 
+			|	"d+": this.getDate(), //日 
+			|	"h+": this.getHours(), //小时 
+			|	"m+": this.getMinutes(), //分 
+			|	"s+": this.getSeconds(), //秒 
+			|	"q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+			|	"S": this.getMilliseconds() //毫秒 
+			|};
+			|if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+			|for (var k in o)
+			|if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+			|return fmt;
+			|}
+
 			|window.onload = function() {
 			|var ctx = document.getElementById("canvas").getContext("2d");
 			|window.myLine = new Chart(ctx, config);
+			|document.getElementById("meeting").value = new Date().Format("yyyy-MM-dd");
+			|document.getElementById("secday").value = new Date().Format("yyyy-MM-dd");
 			|};
 			
 			|document.getElementById('randomizeData').addEventListener('click', function() {
@@ -132,7 +158,6 @@ html
 			|				document.getElementById("myDiv").innerHTML=config.data.datasets[0].data;
 			|				window.myLine.update();
 			|			}
-
 			|		}
 			|	}
 			|	xmlhttp.open("POST","/web/?dat=temperature&deviceid=1002&tm="+document.getElementById("meeting").value,true);
@@ -140,5 +165,5 @@ html
 			|	xmlhttp.setRequestHeader("_csrf","#{csrfToken}");
 			|	xmlhttp.send("_csrf="+"#{csrfToken}");
 			|}
-		button(type="button",onclick="loadXMLDoc(this)") 请求数据
+		
 		|<div id="myDiv"></div>		

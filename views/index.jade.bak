@@ -37,9 +37,26 @@ html
 			|options: !{JSON.stringify(confdata.opt,null,4)},
 			|};
 			
+			|Date.prototype.Format = function (fmt) { //author: meizz 
+			|var o = {
+			|	"M+": this.getMonth() + 1, //月份 
+			|	"d+": this.getDate(), //日 
+			|	"h+": this.getHours(), //小时 
+			|	"m+": this.getMinutes(), //分 
+			|	"s+": this.getSeconds(), //秒 
+			|	"q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+			|	"S": this.getMilliseconds() //毫秒 
+			|};
+			|if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+			|for (var k in o)
+			|if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+			|return fmt;
+			|}
+
 			|window.onload = function() {
 			|var ctx = document.getElementById("canvas").getContext("2d");
 			|window.myLine = new Chart(ctx, config);
+			|document.getElementById("meeting").value = new Date().Format("yyyy-MM-dd");
 			|};
 			
 			|document.getElementById('randomizeData').addEventListener('click', function() {
@@ -117,13 +134,22 @@ html
 			|	{
 			|		if (xmlhttp.readyState==4 && xmlhttp.status==200)
 			|		{
-			|			config.data.datasets[0].data=[];
-			|			var jdat = JSON.parse(xmlhttp.responseText);
-			|			for (var k in jdat){
-			|				config.data.datasets[0].data.push(jdat[k]);
+			|			if(xmlhttp.responseText == "none"){
+			|				document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+			|				config.data.datasets[0].data=[0,0,0,0,0,0,0,0,0,0,0,0,0];
+			|				window.myLine.update();
+			|				alert("没有查询到数据!");
 			|			}
-			|			document.getElementById("myDiv").innerHTML=config.data.datasets[0].data;
-			|			window.myLine.update();
+			|			else{
+			|				config.data.datasets[0].data=[];
+			|				var jdat = JSON.parse(xmlhttp.responseText);
+			|				for (var k in jdat){
+			|					config.data.datasets[0].data.push(jdat[k]);
+			|				}
+			|				document.getElementById("myDiv").innerHTML=config.data.datasets[0].data;
+			|				window.myLine.update();
+			|			}
+
 			|		}
 			|	}
 			|	xmlhttp.open("POST","/web/?dat=temperature&deviceid=1002&tm="+document.getElementById("meeting").value,true);
