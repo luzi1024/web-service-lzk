@@ -1,11 +1,18 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+
 var router = express.Router();
 var pool = require('./common/mysqlpool');
+
+var csrfProtection = require('./common/csrfProtection');
+var parseForm = bodyParser.urlencoded({ extended: false })
+
 
 /*
  普通页面
 */
 var datobj = {
+csrfToken:'',
 title:'Hey',
 message: 'Hello there2',
 confdata: {
@@ -65,7 +72,7 @@ confdata: {
 
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', csrfProtection,function(req, res, next) {
     console.log(JSON.stringify(req.headers,null,4))
   //res.send('Hello World')
   
@@ -106,12 +113,13 @@ router.get('/', function(req, res, next) {
 						senddata=[]
 					}
 					console.log(dictDT);
-					
+					datobj.csrfToken=req.csrfToken()
 					res.render('index',datobj)
 					//res.send('hehe');
 				}
 				else
 				{
+					datobj.csrfToken=req.csrfToken()
 					datobj.message="No Data!"
 					res.render('index',datobj)
 				}
@@ -121,5 +129,96 @@ router.get('/', function(req, res, next) {
 	})
 	console.log("dddone")
 });
+
+// 网页查询
+router.post('/web/', parseForm, csrfProtection,function (req, res) {
+	//res.send('{msg:"err",info:"hhh"}')
+	//console.log(JSON.stringify(req.headers,null,4))
+	console.log(JSON.stringify(req.body,null,4));
+	console.log(req.query);
+	
+	pool.getConnection(function (err, conn) {
+		if (err) throw err;			
+		conn.query('select * from dev_idx WHERE DEVICE_ID='+req.query.deviceid, function(err,rows,fields){ // 待完善
+			if(err)	{return res.send('{msg:"err",info:"'+err+'"}')}
+			else
+			{
+				if(rows.length>0)
+				{
+					var field = ''
+					var dat='*'
+					for (var key in req.query)
+					{
+						if(key.toUpperCase() == 'DEVICEID')
+							continue;
+						else if(key.toUpperCase() == 'DAT')
+						{
+							dat = req.query[key]
+							if(req.query[key].toUpperCase() == 'ALL')
+								dat = '*'
+						}
+						else if(key.toUpperCase() == 'TM') // 时间字段需特殊处理
+						{
+							field+=('DATE('+key.toUpperCase()+')=');
+							field+=('\''+req.query[key].toUpperCase()+'\' AND ');
+						}
+						else
+						{
+							field+=(key.toUpperCase()+'=');
+							field+=('\''+req.query[key].toUpperCase()+'\' AND ');
+						}
+
+					}
+					field+='1';
+					console.log(field);
+					
+					if(field !== '1')
+					{
+						var tbName = 'dev_'+req.query.deviceid;
+						conn.query('select `DATA` from '+tbName+' WHERE '+field, function (err,rowsd,fields){	
+							if(err)	{res.send('{msg:"err",info:"'+err+'"}');}
+							else
+							{
+								
+								if(rowsd.length>0){
+									//console.log(rowsd);
+									var senddata={};
+									for (var idx in rowsd)
+									{
+										var jdat = JSON.parse(rowsd[idx]['DATA'])
+										if(dat == '*')
+											senddata[jdat.tm]=jdat
+										else
+											senddata[jdat.tm]=jdat[dat]
+										//senddata += (JSON.stringify(rowsd[idx],null,4)+"\r\n");
+									}
+									console.log(senddata);
+									res.send(senddata);
+								}
+								else{
+									res.send('none');
+								}
+							
+							}
+
+						});
+					}
+					else{
+						res.send('none');
+					}
+				}
+				else
+				{
+					res.send('{msg:"err",info:"Deny"}');
+				}
+			
+			}
+		});
+	conn.release();
+	//pool.end();
+	});
+		
+});
+
 
 module.exports = router;

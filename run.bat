@@ -1,3 +1,3 @@
-SET DEBUG=web-service-lzk & npm start
+SET DEBUG=web-service-lzk & npm start 
 
 pause

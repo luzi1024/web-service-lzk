@@ -11,7 +11,7 @@ var api   = require('./routes/api');
 
 var app = express();
 
-// view engine setup
+// 模版引擎
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
@@ -36,6 +36,9 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+	
+   //console.log(JSON.stringify(req.headers,null,4))
+  
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
