@@ -16,19 +16,41 @@ html
 		h4 #{message}
 		//p #{csrfToken}
 		div(style="width:70%; margin:0 auto;")
+			label(for="selType1",style="background-color:rgb(255,99,132);") 查询类型：
+			select(id="selType1")
+					option(VALUE="temperature" SELECTED) 温度
+					option(VALUE="humidity" ) 湿度
+					option(VALUE="bmp") 海拔
 			label(for="meeting",style="background-color:rgb(255,99,132);") 日期：
 			input(id="meeting",type="date",value="2017-05-13")
 			|       
-			button(type="button",onclick="loadXMLDoc(this)") 查询
+			button(type="button",onclick="loadXMLDoc(document.getElementById('selType1'),document.getElementById('meeting'),0)") 查询
 			|														
+			label(for="selType2",style="background-color:rgb(54,162,235);") 查询类型：
+			select(id="selType2")
+					option(VALUE="temperature" SELECTED) 温度
+					option(VALUE="humidity" ) 湿度
+					option(VALUE="bmp") 海拔
 			label(for="secday",style="background-color:rgb(54,162,235);") 日期：
 			input(id="secday",type="date",value="2017-05-13")
-			button(type="button",onclick="loadXMLDoc(this)") 查询
+			button(type="button",onclick="loadXMLDoc(document.getElementById('selType2'),document.getElementById('secday'),1)") 查询
 			
 		div(style="width:75%; margin:0 auto;padding-top:25px;")
 			canvas(id="canvas")
+		br
+		
+		div(style="width:70%; margin:0 auto;")
+			label(for="selSdate",style="background-color:rgb(240,240,240);") 起始日期：
+			input(id="selSdate",type="date",value="2017-05-13")
+			|       
+			label(for="selEdate",style="background-color:rgb(240,240,240);") 结束日期：
+			input(id="selEdate",type="date",value="2017-05-13")
+			button(type="button",onclick="loadXMLDocAdv(document.getElementById('selSdate'),document.getElementById('selEdate'))") 高级查找	
 			
-		button(onclick="toggleSmooth(this)") smooth
+		div(style="width:75%; margin:0 auto;padding-top:25px;")
+			canvas(id="canvas3")
+			
+		//button(onclick="toggleSmooth(this)") smooth
 		//button#randomizeData Randomize Data
 		//button#addDataset Add Dataset
 		//button#removeDataset Remove Dataset
@@ -39,12 +61,19 @@ html
 			|var config = {
 			|type: 'line',
 			|data: {
-			|    labels: !{JSON.stringify(confdata.labels,null,4)},
-			|    datasets: !{JSON.stringify(confdata.datasets,null,4)},
-			|},
+			|    	labels: !{JSON.stringify(confdata.labels,null,4)},
+			|    	datasets: !{JSON.stringify(confdata.datasets,null,4)},
+			|	},
 			|options: !{JSON.stringify(confdata.opt,null,4)},
 			|};
-			
+			|var configadv = {
+			|	type: 'bar',
+			|	data: {
+			|   	labels: !{JSON.stringify(confdata.labels,null,4)},
+			|    	datasets: !{JSON.stringify(confdata.datasets,null,4)},
+			|	},
+			|	options: !{JSON.stringify(confdata.opt,null,4)},
+			|};
 			|Date.prototype.Format = function (fmt) { //author: meizz 
 			|var o = {
 			|	"M+": this.getMonth() + 1, //月份 
@@ -63,9 +92,21 @@ html
 
 			|window.onload = function() {
 			|var ctx = document.getElementById("canvas").getContext("2d");
+			|var ctx3 = document.getElementById("canvas3").getContext("2d");
 			|window.myLine = new Chart(ctx, config);
-			|document.getElementById("meeting").value = new Date().Format("yyyy-MM-dd");
-			|document.getElementById("secday").value = new Date().Format("yyyy-MM-dd");
+			|configadv.data.datasets[0].data=[0,0,0,0,0,0,0];
+			|configadv.data.datasets[1].data=[0,0,0,0,0,0,0];
+			|configadv.data.datasets[0].type='line';
+			|configadv.data.datasets[1].type='bar';
+			|configadv.data.datasets[1].yAxisID='y-axis-1';
+			|window.myLine3 = new Chart(ctx3, configadv);
+			|var curDay = new Date();
+			|var lastDay = new Date(curDay).valueOf() - 1 * 24 * 60 * 60 * 1000;
+			|lastDay = new Date(lastDay);
+			|document.getElementById("meeting").value = curDay.Format("yyyy-MM-dd");
+			|document.getElementById("secday").value = lastDay.Format("yyyy-MM-dd");
+			|document.getElementById("selSdate").value = curDay.Format("yyyy-MM-dd");
+			|document.getElementById("selEdate").value = curDay.Format("yyyy-MM-dd");
 			|};
 			
 			|document.getElementById('randomizeData').addEventListener('click', function() {
@@ -75,6 +116,7 @@ html
 			|	});
 			|});
 			|window.myLine.update();
+			|window.myLine3.update();
 			|});
 
 			|var colorNames = Object.keys(window.chartColors);
@@ -128,7 +170,7 @@ html
 			|window.myLine.update();
 			|};
 			
-			|function loadXMLDoc()
+			|function loadXMLDoc(sel,btn,nidx)
 			|{
 			|	var xmlhttp;
 			|	if (window.XMLHttpRequest)
@@ -145,25 +187,76 @@ html
 			|		{
 			|			if(xmlhttp.responseText == "none"){
 			|				document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
-			|				config.data.datasets[0].data=[0,0,0,0,0,0,0,0,0,0,0,0,0];
+			|				config.data.datasets[nidx].data=[0,0,0,0,0,0,0,0,0,0,0,0,0];
 			|				window.myLine.update();
 			|				alert("没有查询到数据!");
 			|			}
 			|			else{
-			|				config.data.datasets[0].data=[];
+			|				config.data.datasets[nidx].data=[];
 			|				var jdat = JSON.parse(xmlhttp.responseText);
 			|				for (var k in jdat){
-			|					config.data.datasets[0].data.push(jdat[k]);
+			|					config.data.datasets[nidx].data.push(jdat[k]);
 			|				}
-			|				document.getElementById("myDiv").innerHTML=config.data.datasets[0].data;
+			|				if(document.getElementById('selType1').selectedIndex == document.getElementById('selType2').selectedIndex){
+			|					config.options.scales.yAxes[1].display=false;
+			|				}
+			|				else{
+			|					config.options.scales.yAxes[1].display=true;
+			|				}
+			|				
+			|				document.getElementById("myDiv").innerHTML=config.data.datasets[nidx].data;
 			|				window.myLine.update();
 			|			}
 			|		}
 			|	}
-			|	xmlhttp.open("POST","/web/?dat=temperature&deviceid=1002&tm="+document.getElementById("meeting").value,true);
+			|	var index=sel.selectedIndex;
+			|	var val = sel.options[index].value;
+			|	xmlhttp.open("POST","/web/?dat="+val+"&deviceid=1002&tm="+btn.value,true);
 			|	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 			|	xmlhttp.setRequestHeader("_csrf","#{csrfToken}");
 			|	xmlhttp.send("_csrf="+"#{csrfToken}");
 			|}
-		
+			
+			|function loadXMLDocAdv(selS,selE)
+			|{
+			|	var xmlhttp;
+			|	if (window.XMLHttpRequest)
+			|	{// code for IE7+, Firefox, Chrome, Opera, Safari
+			|		xmlhttp=new XMLHttpRequest();
+			|	}
+			|	else
+			|	{// code for IE6, IE5
+			|	  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+			|	}
+			|	xmlhttp.onreadystatechange=function()
+			|	{
+			|		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			|		{
+			|			if(xmlhttp.responseText == "none"){
+			|				alert("没有查询到数据!");
+			|			}
+			|			else{
+			|				//document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+			|				configadv.data.labels=[];
+			|				configadv.data.datasets[0].data=[];
+			|				configadv.data.datasets[1].data=[];
+			|				configadv.data.datasets[0].type='line';
+			|				configadv.data.datasets[1].type='bar';
+			|				configadv.data.datasets[0].label='最高值';
+			|				configadv.data.datasets[1].label='平均值';
+			|				var jdat = JSON.parse(xmlhttp.responseText);
+			|				for (var k in jdat){
+			|					configadv.data.labels.push(k);
+			|					configadv.data.datasets[0].data.push(jdat[k].max);
+			|					configadv.data.datasets[1].data.push(jdat[k].avg);
+			|				}
+			|				window.myLine3.update();
+			|			}
+			|		}
+			|	}
+			|	xmlhttp.open("POST","/api/webadv/?deviceid=1002&tms="+selS.value+"&tme="+selE.value,true);
+			|	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			|	xmlhttp.setRequestHeader("_csrf","#{csrfToken}");
+			|	xmlhttp.send("_csrf="+"#{csrfToken}");
+			|}
 		|<div id="myDiv"></div>		

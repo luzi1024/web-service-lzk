@@ -18,18 +18,22 @@ message: 'Hello there2',
 confdata: {
 	labels: ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"],
 	datasets: [{
+		type:"line",
 		label: "My First dataset",
 		backgroundColor: 'rgb(255, 99, 132)',
 		borderColor: 'rgb(255, 99, 132)',
 		data: [0,0,0,0,0,0,0],
 		fill: false,
+		yAxisID: "y-axis-1",
 	}, 
 	{
+		type:"line",
 		label: "My Second dataset",
 		backgroundColor: 'rgb(54, 162, 235)',
 		borderColor: 'rgb(54, 162, 235)',
 		data: [1,1,1,1,1,1,1],
 		fill: false,
+		yAxisID: "y-axis-2",
 	}],
 	opt:{
 		responsive: true,
@@ -54,10 +58,23 @@ confdata: {
 				}
 			}],
 			yAxes: [{
+				type: "linear",
+				position: "left",
+                id: "y-axis-1",
 				display: true,
 				scaleLabel: {
 					display: true,
 					labelString: '温度'
+				}
+			},
+			{
+				type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+				display: false,
+				position: "right",
+				id: "y-axis-2",
+				scaleLabel: {
+					display: true,
+					labelString: '湿度'
 				}
 			}]
 		},
@@ -220,5 +237,88 @@ router.post('/web/', parseForm, csrfProtection,function (req, res) {
 		
 });
 
+router.post('/webadv/', parseForm, csrfProtection,function (req, res) {
+	//res.send('{msg:"err",info:"hhh"}')
+	//console.log(JSON.stringify(req.headers,null,4))
+	console.log(JSON.stringify(req.body,null,4));
+	console.log(req.query);
+	
+	pool.getConnection(function (err, conn) {
+		if (err) throw err;			
+		conn.query('select * from dev_idx WHERE DEVICE_ID='+req.query.deviceid, function(err,rows,fields){ // 待完善
+			if(err)	{return res.send('{msg:"err",info:"'+err+'"}')}
+			else
+			{
+				if(rows.length>0)
+				{
+					var field = ''
+					for (var key in req.query)
+					{
+						if(key.toUpperCase() == 'DEVICEID')
+							continue;
+						else if(key.toUpperCase() == 'TMS') // 时间字段需特殊处理
+						{
+							field+=('DATE(tm)>');
+							field+=('\''+req.query[key].toUpperCase()+'\' AND ');
+						}
+						else if(key.toUpperCase() == 'TME') // 时间字段需特殊处理
+						{
+							field+=('DATE(tm)<=');
+							field+=('\''+req.query[key].toUpperCase()+'\' AND ');
+						}
+						else
+						{
+							field+=(key.toUpperCase()+'=');
+							field+=('\''+req.query[key].toUpperCase()+'\' AND ');
+						}
+
+					}
+					field+='1';
+					console.log(field);
+					
+					if(field !== '1')
+					{
+						var tbName = 'dev_'+req.query.deviceid;
+						
+						
+						conn.query("SELECT  count(*) AS c,  \
+									DATE_FORMAT(tm, '%Y-%m-%d') AS t , \
+									MAX(temperature) AS max,\
+									AVG(temperature) AS avg \
+									FROM "+tbName+" WHERE "+field+" GROUP BY  t ORDER BY NULL ", function (err,rowsd,fields){	
+							if(err)	{res.send('{msg:"err",info:"'+err+'"}');}
+							else
+							{
+								if(rowsd.length>0){
+									//console.log(rowsd);
+									var senddata={};
+									for (var idx in rowsd)
+									{
+										senddata[rowsd[idx].t]={count:rowsd[idx].c,max:rowsd[idx].max,avg:rowsd[idx].avg}
+									}
+									console.log(senddata);
+									res.send(senddata);
+								}
+								else{
+									res.send('none');
+								}
+							}
+						});
+					}
+					else{
+						res.send('none');
+					}
+				}
+				else
+				{
+					res.send('{msg:"err",info:"Deny"}');
+				}
+			
+			}
+		});
+	conn.release();
+	//pool.end();
+	});
+});
 
 module.exports = router;
