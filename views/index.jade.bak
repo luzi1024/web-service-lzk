@@ -254,7 +254,7 @@ html
 			|			}
 			|		}
 			|	}
-			|	xmlhttp.open("POST","/api/webadv/?deviceid=1002&tms="+selS.value+"&tme="+selE.value,true);
+			|	xmlhttp.open("POST","/webadv/?deviceid=1002&tms="+selS.value+"&tme="+selE.value,true);
 			|	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 			|	xmlhttp.setRequestHeader("_csrf","#{csrfToken}");
 			|	xmlhttp.send("_csrf="+"#{csrfToken}");

@@ -33,7 +33,7 @@ confdata: {
 		borderColor: 'rgb(54, 162, 235)',
 		data: [1,1,1,1,1,1,1],
 		fill: false,
-		yAxisID: "y-axis-2",
+		yAxisID: "y-axis-1",
 	}],
 	opt:{
 		responsive: true,
@@ -74,7 +74,7 @@ confdata: {
 				id: "y-axis-2",
 				scaleLabel: {
 					display: true,
-					labelString: '湿度'
+					labelString: '温度'
 				}
 			}]
 		},
