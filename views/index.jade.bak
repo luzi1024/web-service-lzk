@@ -24,7 +24,7 @@ html
 			label(for="meeting",style="background-color:rgb(255,99,132);") 日期：
 			input(id="meeting",type="date",value="2017-05-13")
 			|       
-			button(type="button",onclick="loadXMLDoc(document.getElementById('selType1'),document.getElementById('meeting'),0)") 查询
+			button(type="button",onclick="loadXMLDoc(document.getElementById('selType1'),document.getElementById('meeting'),0,1)") 查询
 			|														
 			label(for="selType2",style="background-color:rgb(54,162,235);") 查询类型：
 			select(id="selType2")
@@ -33,7 +33,7 @@ html
 					option(VALUE="bmp") 海拔
 			label(for="secday",style="background-color:rgb(54,162,235);") 日期：
 			input(id="secday",type="date",value="2017-05-13")
-			button(type="button",onclick="loadXMLDoc(document.getElementById('selType2'),document.getElementById('secday'),1)") 查询
+			button(type="button",onclick="loadXMLDoc(document.getElementById('selType2'),document.getElementById('secday'),1,0)") 查询
 			
 		div(style="width:75%; margin:0 auto;padding-top:25px;")
 			canvas(id="canvas")
@@ -170,8 +170,11 @@ html
 			|window.myLine.update();
 			|};
 			
-			|function loadXMLDoc(sel,btn,nidx)
+			|function loadXMLDoc(sel,btn,nidx,oidx)
 			|{
+			|	var index=sel.selectedIndex;
+			|	var val = sel.options[index].value;
+			|	var cText = sel.options[index].text;
 			|	var xmlhttp;
 			|	if (window.XMLHttpRequest)
 			|	{// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -197,20 +200,36 @@ html
 			|				for (var k in jdat){
 			|					config.data.datasets[nidx].data.push(jdat[k]);
 			|				}
-			|				if(document.getElementById('selType1').selectedIndex == document.getElementById('selType2').selectedIndex){
-			|					config.options.scales.yAxes[1].display=false;
+			
+			|				var oldyAxisID = config.data.datasets[nidx].yAxisID;
+			|				var oldText    = config.options.scales.yAxes[nidx].scaleLabel.labelString;
+			|				var othText    = config.options.scales.yAxes[oidx].scaleLabel.labelString;
+			|				if(oldText != cText){
+			|					config.options.scales.yAxes[nidx].scaleLabel.labelString = cText;
+			|					if(othText != cText){
+			|						if(nidx==0){
+			|							config.data.datasets[oidx].yAxisID = "y-axis-2";
+			|						}else{
+			|							config.data.datasets[nidx].yAxisID = "y-axis-2";
+			|						}
+			|						config.options.scales.yAxes[1].display=true;
+			|					}else{
+			|						if(nidx==0){
+			|							config.data.datasets[oidx].yAxisID = "y-axis-1";
+			|						}else{
+			|							config.data.datasets[nidx].yAxisID = "y-axis-1";
+			|						}	
+			|						config.options.scales.yAxes[1].display=false;
+			|					}
+			|					window.myLine.destroy();
+			|					window.myLine = new Chart(document.getElementById("canvas").getContext("2d"), config);
 			|				}
-			|				else{
-			|					config.options.scales.yAxes[1].display=true;
-			|				}
-			|				
+			|				console.log("--old:"+oldText+"--cur:"+cText+"--oth:"+othText);
 			|				document.getElementById("myDiv").innerHTML=config.data.datasets[nidx].data;
 			|				window.myLine.update();
 			|			}
 			|		}
 			|	}
-			|	var index=sel.selectedIndex;
-			|	var val = sel.options[index].value;
 			|	xmlhttp.open("POST","/web/?dat="+val+"&deviceid=1002&tm="+btn.value,true);
 			|	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 			|	xmlhttp.setRequestHeader("_csrf","#{csrfToken}");

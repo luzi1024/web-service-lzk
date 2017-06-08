@@ -103,10 +103,13 @@ html
 			|var curDay = new Date();
 			|var lastDay = new Date(curDay).valueOf() - 1 * 24 * 60 * 60 * 1000;
 			|lastDay = new Date(lastDay);
+			|var last30Day = new Date(curDay).valueOf() - 30 * 24 * 60 * 60 * 1000;
+			|last30Day = new Date(last30Day);
 			|document.getElementById("meeting").value = curDay.Format("yyyy-MM-dd");
 			|document.getElementById("secday").value = lastDay.Format("yyyy-MM-dd");
-			|document.getElementById("selSdate").value = curDay.Format("yyyy-MM-dd");
+			|document.getElementById("selSdate").value = last30Day.Format("yyyy-MM-dd");
 			|document.getElementById("selEdate").value = curDay.Format("yyyy-MM-dd");
+			|loadXMLDocAdv(document.getElementById('selSdate'),document.getElementById('selEdate'));
 			|};
 			
 			|document.getElementById('randomizeData').addEventListener('click', function() {
@@ -224,7 +227,7 @@ html
 			|					window.myLine.destroy();
 			|					window.myLine = new Chart(document.getElementById("canvas").getContext("2d"), config);
 			|				}
-			|				console.log("--old:"+oldText+"--cur:"+cText+"--oth:"+othText);
+			|				//console.log("--old:"+oldText+"--cur:"+cText+"--oth:"+othText);
 			|				document.getElementById("myDiv").innerHTML=config.data.datasets[nidx].data;
 			|				window.myLine.update();
 			|			}
