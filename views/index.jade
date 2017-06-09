@@ -6,6 +6,56 @@ html
 		script(src="https://cdn.bootcss.com/Chart.js/2.5.0/Chart.bundle.js")
 		script(src="./javascripts/utils.js")
 		|<style>
+		|body {
+		|  background: #ededed;
+		|  padding: 0 20px;
+		|  margin: 0;
+		|  font-family: 'Open Sans', Arial, sans-serif;
+		|}
+
+		|h1 {
+		|  text-align: center;
+		|  margin: 30px 0;
+		|}
+
+		|.mynav ul {
+		|  display: -webkit-box;
+		|  display: -ms-flexbox;
+		|  display: flex;
+		|  -webkit-box-pack: center;
+		|      -ms-flex-pack: center;
+		|          justify-content: center;
+		|  -ms-flex-wrap: wrap;
+		|      flex-wrap: wrap;
+		|  list-style-type: none;
+		|  padding: 0;
+		|}
+
+		|.mynav li:not(:last-child) {
+		|  margin-right: 20px;
+		|}
+
+		|.mynav a {
+		|  display: block;
+		|  font-size: 20px;
+		|  color: black;
+		|  text-decoration: none;
+		|  padding: 7px 15px;
+		|}
+
+		|.target {
+		|  position: absolute;
+		|  border-bottom: 4px solid transparent;
+		|  z-index: -1;
+		|  -webkit-transform: translateX(-60px);
+		|          transform: translateX(-60px);
+		|}
+
+		|.mynav a,
+		|.target {
+		|  -webkit-transition: all .35s ease-in-out;
+		|  transition: all .35s ease-in-out;
+		|}
 		|canvas{
 		|		-moz-user-select: none;
 		|		-webkit-user-select: none;
@@ -13,7 +63,23 @@ html
 		|		}
 		|</style>
 	body
-		h4 #{message}
+		h1 #{message}
+		nav(class="mynav")
+			ul
+				li
+					a(href="#") Home
+				li
+					a(href="#") About
+				li
+					a(href="#") Company
+				li
+					a(href="#") Work
+				li
+					a(href="#") Clients
+				li
+					a(href="http://www.baidu.com") Contact
+		span(class="target")
+		
 		//p #{csrfToken}
 		div(style="width:70%; margin:0 auto;")
 			label(for="selType1",style="background-color:rgb(255,99,132);") 查询类型：
@@ -57,6 +123,56 @@ html
 		//button#addData Add Data
 		//button#removeData Remove Data
 		script
+			|"use strict";
+
+			
+			|(function () {
+			|  var target = document.querySelector(".target");
+			|  var links = document.querySelectorAll(".mynav a");
+			|  var colors = ["deepskyblue", "orange", "firebrick", "gold", "magenta", "black", "darkblue"];
+
+			|  function mouseenterFunc() {
+			|    if (!this.parentNode.classList.contains("active")) {
+			|      for (var i = 0; i < links.length; i++) {
+			|        if (links[i].parentNode.classList.contains("active")) {
+			|          links[i].parentNode.classList.remove("active");
+			|        }
+			|        links[i].style.opacity = "0.25";
+			|      }
+			|      this.parentNode.classList.add("active");
+			|     this.style.opacity = "1";
+			|      var width = this.getBoundingClientRect().width;
+			|      var height = this.getBoundingClientRect().height;
+			|      var left = this.getBoundingClientRect().left + window.pageXOffset;
+			|      var top = this.getBoundingClientRect().top + window.pageYOffset;
+			|      var color = colors[Math.floor(Math.random() * colors.length)];
+			|      target.style.width = width + "px";
+			|      target.style.height = height + "px";
+			|      target.style.left = left + "px";
+			|      target.style.top = top + "px";
+			|      target.style.borderColor = color;
+			|      target.style.transform = "none";
+			|    }
+			| }
+			|  for (var i = 0; i < links.length; i++) {
+			|    links[i].addEventListener("click", function (e) {
+			|      return e.preventDefault();
+			|    });
+			|    links[i].addEventListener("mouseenter", mouseenterFunc);
+			|  }
+			|  function resizeFunc() {
+			|    var active = document.querySelector(".mynav li.active");
+			|    if (active) {
+			|      var left = active.getBoundingClientRect().left + window.pageXOffset;
+			|      var top = active.getBoundingClientRect().top + window.pageYOffset;
+			|      target.style.left = left + "px";
+			|      target.style.top = top + "px";
+			|    }
+			|  }
+			|  window.addEventListener("resize", resizeFunc);
+			|})();
+			
+			
 			|var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 			|var config = {
 			|type: 'line',
@@ -281,4 +397,4 @@ html
 			|	xmlhttp.setRequestHeader("_csrf","#{csrfToken}");
 			|	xmlhttp.send("_csrf="+"#{csrfToken}");
 			|}
-		|<div id="myDiv"></div>		
+		|<div id="myDiv">ss</div>		
