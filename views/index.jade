@@ -69,15 +69,15 @@ html
 				li
 					a(href="#") Home
 				li
-					a(href="#") About
-				li
-					a(href="#") Company
+					a(href="/apps") App
 				li
 					a(href="#") Work
 				li
-					a(href="#") Clients
+					a(href="/users") Clients
 				li
-					a(href="http://www.baidu.com") Contact
+					a(href="#") About
+				li
+					a(href="http://www.baidu.com",target="_blank") Contact
 		span(class="target")
 		
 		//p #{csrfToken}
@@ -124,28 +124,27 @@ html
 		//button#removeData Remove Data
 		script
 			|"use strict";
-
-			
-			|(function () {
+			|function showhome() {
+			|  var mynavs = document.querySelector(".mynav");
 			|  var target = document.querySelector(".target");
 			|  var links = document.querySelectorAll(".mynav a");
 			|  var colors = ["deepskyblue", "orange", "firebrick", "gold", "magenta", "black", "darkblue"];
 
-			|  function mouseenterFunc() {
-			|    if (!this.parentNode.classList.contains("active")) {
-			|      for (var i = 0; i < links.length; i++) {
+			|  function actFunc(itm,idx){
+			|    if (!itm.parentNode.classList.contains("active")) {
+			|		for (var i = 0; i < links.length; i++) {
 			|        if (links[i].parentNode.classList.contains("active")) {
 			|          links[i].parentNode.classList.remove("active");
 			|        }
 			|        links[i].style.opacity = "0.25";
 			|      }
-			|      this.parentNode.classList.add("active");
-			|     this.style.opacity = "1";
-			|      var width = this.getBoundingClientRect().width;
-			|      var height = this.getBoundingClientRect().height;
-			|      var left = this.getBoundingClientRect().left + window.pageXOffset;
-			|      var top = this.getBoundingClientRect().top + window.pageYOffset;
-			|      var color = colors[Math.floor(Math.random() * colors.length)];
+			|      itm.parentNode.classList.add("active");
+			|      itm.style.opacity = "1";
+			|      var width = itm.getBoundingClientRect().width;
+			|      var height = itm.getBoundingClientRect().height;
+			|      var left = itm.getBoundingClientRect().left + window.pageXOffset;
+			|      var top = itm.getBoundingClientRect().top + window.pageYOffset;
+			|      var color = colors[idx];
 			|      target.style.width = width + "px";
 			|      target.style.height = height + "px";
 			|      target.style.left = left + "px";
@@ -153,10 +152,21 @@ html
 			|      target.style.borderColor = color;
 			|      target.style.transform = "none";
 			|    }
+			|  }
+			|  function mouseenterFunc() {
+			|		for (var idx in links){
+			|			if(this.innerHTML==links[idx].innerHTML){
+			|				actFunc(this,idx);
+			|			}
+			|		}
+			| }
+			|  function mouseleaveFunc(){
+			|       actFunc(document.querySelector("a"),0);
 			| }
 			|  for (var i = 0; i < links.length; i++) {
 			|    links[i].addEventListener("mouseenter", mouseenterFunc);
 			|  }
+			|  mynavs.addEventListener("mouseleave", mouseleaveFunc);
 			|  function resizeFunc() {
 			|    var active = document.querySelector(".mynav li.active");
 			|    if (active) {
@@ -167,7 +177,8 @@ html
 			|    }
 			|  }
 			|  window.addEventListener("resize", resizeFunc);
-			|})();
+			|  actFunc(document.querySelector("a"),0);
+			|};
 			
 			
 			|var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -223,6 +234,7 @@ html
 			|document.getElementById("selSdate").value = last30Day.Format("yyyy-MM-dd");
 			|document.getElementById("selEdate").value = curDay.Format("yyyy-MM-dd");
 			|loadXMLDocAdv(document.getElementById('selSdate'),document.getElementById('selEdate'));
+			|showhome();
 			|};
 			
 			|document.getElementById('randomizeData').addEventListener('click', function() {

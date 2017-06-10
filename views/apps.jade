@@ -1,0 +1,14 @@
+doctype html
+html
+	head
+		title #{title}
+		meta(charset="utf-8")
+	body
+		h1 #{message}
+		- var array = [1,2,3]
+		ul
+			- for (var i = 0; i < dat.length; ++i) {
+			li [#{i+1}]
+				a(href="#{dat[i].ref}",target="_blank") #{dat[i].title}
+				a(href="#{dat[i].thunder}",target="_blank") ⏬迅雷下载地址
+			- }
