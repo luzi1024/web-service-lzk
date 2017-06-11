@@ -16,6 +16,7 @@ html
 		|h1 {
 		|  text-align: center;
 		|  margin: 30px 0;
+		|  -webkit-transition: all .35s ease-in-out;
 		|}
 
 		|.mynav ul {
@@ -151,6 +152,7 @@ html
 			|      target.style.top = top + "px";
 			|      target.style.borderColor = color;
 			|      target.style.transform = "none";
+			|		document.querySelector("h1").style.color = color;
 			|    }
 			|  }
 			|  function mouseenterFunc() {
