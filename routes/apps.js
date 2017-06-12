@@ -15,7 +15,7 @@ Apps.get('/', function(req, res, next) {
 		 res.send('{msg:"err",info:"'+err+'"}');
 		 throw err;
 		};
-		conn.query("SELECT * FROM `web_scan` WHERE `mark`>0 ", function(err,rows,fields){
+		conn.query("SELECT * FROM `web_scan` WHERE `mark`>0 ORDER BY `tm` DESC", function(err,rows,fields){
 			if(err)	{res.send('{msg:"err",info:"'+err+'"}')}
 			else{
 				datobj.dat=[];
