@@ -9,6 +9,7 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var api   = require('./routes/api');
 var apps  = require('./routes/apps');
+var mqtt  = require('./routes/mqttc');
 
 var app = express();
 
