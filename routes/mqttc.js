@@ -18,13 +18,13 @@ client.on('message', function (topic, message) {
   if(topic=="/home/esp-link/1002"){	
 	var jsdata = JSON.parse(message.toString());
 	if(jsdata["msg"]=="data"){
-		console.log("data:"+message.toString());
+		//console.log("data:"+message.toString());
 		var curDate = new Date();
 		if(Date.compare(curDate,lastDate) == 1){
 			lastDate.addHours(1); //延后一小时 再次记录
 		}
 		else{
-			console.log("lastDate: "+lastDate.toLocaleString());
+		//	console.log("lastDate: "+lastDate.toLocaleString());
 			return;
 		}
 		// 写入数据库操作
@@ -67,7 +67,7 @@ client.on('message', function (topic, message) {
 		
 	}
 	else if(jsdata["msg"]=="beat"){
-		console.log("beat: tm:"+jsdata["tm"]);
+	//	console.log("beat: tm:"+jsdata["tm"]);
 	}
 	else{
 		console.log(jsdata);
