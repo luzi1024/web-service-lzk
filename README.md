@@ -12,3 +12,6 @@ api端口为 http://localhost:3000/api
   支持get查询 
   支持post提交数据
 
+首页
+![avatar](https://luzipic.oss-cn-beijing.aliyuncs.com/pic_1/lzIdx1.jpg)
+![avatar](https://luzipic.oss-cn-beijing.aliyuncs.com/pic_1/lzIdx2.jpg)
