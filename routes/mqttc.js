@@ -3,7 +3,7 @@ var mqttc = express.Router();
 var pool = require('./common/mysqlpool');
 
 var mqtt = require('mqtt');
-var client  = mqtt.connect('http://47.93.203.61');
+var client  = mqtt.connect('mqtt://lzk1024.com', {username:'', password:''});
 require('date-utils');
 var lastDate = new Date(); // 时间控制 每隔一小时记录一次
 
